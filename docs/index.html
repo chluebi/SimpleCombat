@@ -1,0 +1,159 @@
+<link rel="stylesheet" href="main.css">
+
+
+<div id="app"> 
+    <div id="filepicker-overlay">
+        <div id="filepicker" class="box">
+            <div class="centered" v-on:click="unselectImage">
+                [[ filepickerText ]]
+            </div>
+            <div id="filepicker-gallery">
+                <filepicker-image
+                    v-for="i in images"
+                    v-bind:info="i"
+                    v-bind:key="i.id"
+                    v-bind:selectedimage="selectedImage"
+                    v-on:click.native="selectImage(i.id)"
+                ></filepicker-image>
+            </div>
+            <div id="filepicker-controls">
+                <a class="red-button" v-on:click="closeFilePicker">Close</a>
+                <a class="red-button" v-on:click="deleteAsset">Delete Asset</a>
+                <label id="file-upload" class="button upload-label">
+                    Upload Files
+                    <input class="file-input" type="file" v-on:change="loadImages" multiple />
+                </label>
+                <label id="folder-upload" class="button upload-label">
+                    Upload Folder
+                    <input class="file-input" type="file" v-on:change="loadImages" webkitdirectory multiple />
+                </label>
+                <a class="greener-button" v-on:click="confirmFilePicker">Confirm</a>
+            </div>
+        </div>
+    </div>
+    <h1 id="title">SimpleCombat</h1>
+    <div id="tools">
+        <a class="button" v-on:click="importBackground">
+            Set Background
+        </a>
+        <a class="button" v-on:click="importAsset">
+            Add Asset Token
+        </a>
+        <a class="button" v-on:click="createTextToken">
+            Add Text Token
+        </a>
+    </div>
+    <div id="battlefield" v-bind:style="{width: background.width, height: background.height}">
+        <img id="background-image" v-bind:src="background.image"
+        v-bind:style="{transform: 'translate(' + background.x + 'px,' + background.y + 'px)',
+        webkitTransform: 'translate(' + background.x + 'px,' + background.y + ' px)',
+        width: background.width,
+        height: background.height}"/>
+        <token
+            v-for="t in tokens"
+            v-bind:info="t"
+            v-bind:key="t.id"
+            v-bind:selectedtoken="selectedToken"
+            v-on:click.native="selectToken(t.id)"
+        ></token>
+    </div>
+    <div id="grid-info" class="box">
+        <div>
+            Snapping Grid
+        </div>
+        <div>
+            
+        </div>
+        <div id="grid-width">
+            Cell Width: 
+            <input name="width" class="short-input" v-bind:value="grid.width" v-on:change="updateGrid"/>
+        </div>
+        <div id="grid-height">
+            Cell Height: 
+            <input name="height" class="short-input" v-bind:value="grid.height" v-on:change="updateGrid"/>
+        </div>
+        <div id="grid-offsetx">
+            X Offset: 
+            <input name="offsetx" class="short-input" v-bind:value="grid.offsetx" v-on:change="updateGrid"/>
+        </div>
+        <div id="grid-offsety">
+            Y Offset: 
+            <input name="offsety" class="short-input" v-bind:value="grid.offsety" v-on:change="updateGrid"/>
+        </div>
+    </div>
+    <div v-show="selectedToken == -1 ? false : true" id="token-info" class="box">
+        <div>
+            Token
+        </div>
+        <a class="red-button" v-on:click="deleteToken">Delete</a>
+        <div id="token-id">
+            ID: 
+            <input class="short-input" v-bind:value="selectedTokenData.id" v-on:change="updateTokenValues" readonly="true" />
+        </div>
+        <div v-show="selectedTokenData.assetId != -1 ? true : false" id="token-source">
+            Source: 
+            <input class="long-input" v-bind:value="selectedTokenData.text + '#' + selectedTokenData.assetId" v-on:change="updateTokenValues" readonly="true"/>
+        </div>
+        <div v-show="selectedTokenData.assetId == -1 ? true : false" id="token-text">
+            Text: 
+            <input name="text" class="long-input" v-bind:value="selectedTokenData.text" v-on:change="updateTokenValues"/>
+        </div>
+        <div v-show="selectedTokenData.assetId == -1 ? true : false" id="token-fontsize">
+            Font Size: 
+            <input name="fontsize" class="short-input" v-bind:value="selectedTokenData.fontsize" v-on:change="updateTokenValues"/>
+        </div>
+        <div v-show="selectedTokenData.assetId == -1 ? true : false" id="token-color">
+            Text Color: 
+            <input name="color" class="long-input" v-bind:value="selectedTokenData.color" v-on:change="updateTokenValues"/>
+        </div>
+        <div v-show="selectedTokenData.assetId == -1 ? true : false" id="token-bordercolor">
+            Border Color: 
+            <input name="bordercolor" class="long-input" v-bind:value="selectedTokenData.bordercolor" v-on:change="updateTokenValues"/>
+        </div>
+        <div id="token-x">
+            X: 
+            <input name="x" class="short-input"  v-bind:value="selectedTokenData.x" v-on:change="updateTokenValues"/>
+        </div>
+        <div id="token-y">
+            Y: 
+            <input name="y" class="short-input" v-bind:value="selectedTokenData.y" v-on:change="updateTokenValues"/>
+        </div>
+        <div id="token-width">
+            Width: 
+            <input name="width" class="short-input" v-bind:value="Math.round(selectedTokenData.width)" v-on:change="updateTokenValues"/>
+        </div>
+        <div id="token-height">
+            Height: 
+            <input name="height" class="short-input" v-bind:value="Math.round(selectedTokenData.height)" v-on:change="updateTokenValues"/>
+        </div>
+        <div id="token-z">
+            Z: 
+            <input name="z" class="short-input" v-bind:value="selectedTokenData.z" v-on:change="updateTokenValues"/>
+        </div>
+        <div id="token-orientation">
+            Orientation: 
+            <input name="orientation" class="short-input" v-bind:value="String(selectedTokenData.orientation).replace('deg', '')" v-on:change="updateTokenValues"/>
+        </div>
+        <div id="token-opacity">
+            Opacity: 
+            <input name="opacity" class="short-input" v-bind:value="selectedTokenData.opacity" v-on:change="updateTokenValues"/>
+        </div>
+    </div>
+    <div id="online-controls">
+        <div id="player-sidebar">
+            <div id="player-list">
+                <player
+                    v-for="p in players"
+                    v-bind:info="p"
+                    v-bind:key="p.id"
+                ></player>
+            </div>
+            <input id="invite" v-bind:value="inviteLink" readonly="true"/>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/vue@2/dist/vue.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/interactjs@1.10.3/dist/interact.min.js"></script>
+<script src="app.js"></script>
+<script src="interact.js"></script>
