@@ -1,4 +1,5 @@
 # SimpleCombat
+
 A website to run Tabletop RPG type combat in the browser for free. Created because I was frustrated with the existing offers full of ads and paid subscriptions. Nowadays I would reccomend [Owlbear Rodeo](https://www.owlbear.rodeo).
 
 # How to Use
